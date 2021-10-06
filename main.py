@@ -48,7 +48,7 @@ def joinClass(index):
     className[index].click()
 
 def currentTime():
-    t = int(datetime.datetime.datetime.now().strftime("%H%M"))
+    t = int(datetime.datetime.now().strftime("%H%M"))
     return t
 
 def currentDay():
@@ -57,10 +57,10 @@ def currentDay():
 
 def waituntilThis(curr_t, class_time):
     while(curr_t < class_time):
-        time.sleep(3)
         print("Waiting...")
-        continue
-        print(curr_t)
+        time.sleep(3)
+        curr_t = currentTime()
+        print("Time: ",curr_t)
 
 def goHome():
     teamBtn.click()
@@ -103,5 +103,12 @@ if(d == "Monday"):
     waituntilThis(t,1702)
     joinClass(6)
     waituntilThis(t,1750)
+    goHome()
+
+# test...
+if(d == "Wednesday"):
+    waituntilThis(t,2224)
+    joinClass(3)
+    waituntilThis(t,2226)
     goHome()
 
