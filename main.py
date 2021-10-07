@@ -17,13 +17,13 @@ time.sleep(6)
 
 emailID = driver.find_element_by_id("i0116")
 print(emailID)
-emailID.send_keys("sayujyasamir.malkan2019@vitstudent.ac.in")
+emailID.send_keys("")
 emailID.send_keys(Keys.RETURN)
 time.sleep(3)
 
 pswrd = driver.find_element_by_id("i0118")
 time.sleep(5)
-pswrd.send_keys("Sayujya2001")
+pswrd.send_keys("")
 pswrd.send_keys(Keys.RETURN)
 time.sleep(5)
 
