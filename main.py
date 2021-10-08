@@ -1,7 +1,9 @@
+from ctypes import pythonapi
 import datetime
-import selenium
+from functools import cache
 import os
 import time
+import pyautogui
 from selenium import webdriver
 from selenium.webdriver.chrome import options
 from selenium.webdriver.common.keys import Keys
@@ -29,17 +31,19 @@ emailAddress = os.getenv("EMAIL")
 PATH = "C:/Program Files (x86)/chromedriver.exe"
 driver = webdriver.Chrome(executable_path = PATH)
 
-driver2 = webdriver.Chrome(ChromeDriverManager().install())
+# driver2 = webdriver.Chrome(ChromeDriverManager().install())
 driver.get('https://teams.microsoft.com/go#')
 time.sleep(6)
 
 
 emailID = driver.find_element_by_id("i0116")
+print("Entering Email ID...")
 emailID.send_keys(emailAddress)
 emailID.send_keys(Keys.RETURN)
 time.sleep(3)
 
 pswrd = driver.find_element_by_id("i0118")
+print("Entering Password...")
 time.sleep(5)
 pswrd.send_keys(password)
 pswrd.send_keys(Keys.RETURN)
@@ -49,10 +53,11 @@ time.sleep(5)
 # dontshowagain.send_keys(Keys.RETURN)
 time.sleep(2)
 SignInYes = driver.find_element_by_id("idSIButton9")
+print("Entered yes button")
 SignInYes.send_keys(Keys.RETURN)
 
 time.sleep(20)
-
+print("Loading MS Teams...")
 
 # driver.quit()
 
@@ -65,11 +70,33 @@ teamBtn = driver.find_element_by_id("app-bar-2a84919f-59d8-4441-a975-2a8c2643b74
 def enterClass(index):
     className[index].click()
     time.sleep(3)
-    joinBtn = driver.find_element_by_class_name("ts-calling-join-button")
+    print("Entered the class")
+    join_btn = listenForJoinBtn()
     time.sleep(3)
-    joinBtn.click()
+    join_btn.click()
     time.sleep(3)
-    givePermissions()
+    # givePermissions()
+    # time.sleep(2)
+    pyautogui.press("tab")
+    pyautogui.press("tab")
+    pyautogui.press("enter")
+    print('Allowed Cam and Mic permissions')
+    time.sleep(2)
+    try:
+        cam = driver.find_element_by_css_selector("span[title='Turn camera off']")
+        cam.click()
+        time.sleep(1)
+        mic = driver.find_element_by_css_selector("span[title='Mute microphone']")
+        mic.click()
+    except:
+        print("Mic and Cam already off")
+
+    try:
+        time.sleep(2)
+        join = driver.find_element_by_css_selector("button[ng-click='ctrl.joinMeeting()']")
+        join.click()
+    except:
+        print("Err in joinings")
 
 
 def currentTime():
@@ -80,12 +107,32 @@ def currentDay():
     d = datetime.datetime.now().strftime("%A")
     return d
 
-def waituntilThis(curr_t, class_time):
+def wait_until_found(sel, timeout, driver):
+    try:
+        element_present = EC.visibility_of_element_located((By.CSS_SELECTOR, sel))
+        WebDriverWait(driver, timeout).until(element_present)
+        return driver.find_element_by_css_selector(sel)
+    except exceptions.TimeoutException:
+        print(f"Timeout waiting for element: {sel}")
+        return None
+
+
+
+
+def waituntilThis(curr_t, class_time, end_time, index):
+    curr_t = currentTime()
+    if(curr_t > class_time and curr_t < end_time):
+        enterClass(index)
+    if(curr_t > end_time):
+        goHome()
     while(curr_t < class_time):
         print("Waiting...")
         time.sleep(3)
         curr_t = currentTime()
         print("Time: ",curr_t)
+
+
+
 
 def goHome():
     teamBtn.click()
@@ -93,23 +140,26 @@ def goHome():
     print("You are at home")
 
 def listenForJoinBtn():
-    while(len(joinBtn) < 1):
+    joinBtn = wait_until_found("button[ng-click='ctrl.joinCall()']", 10, driver)
+    while(joinBtn is None):
         print("Waiting for class to be started")
         time.sleep(4)
+        joinBtn = wait_until_found("button[ng-click='ctrl.joinCall()']", 10, driver)
+    return joinBtn
 
 
-def givePermissions():
-    time.sleep(3)
-    opt = Options()
-    opt.add_argument("--disable-infobars")
-    opt.add_argument("start-maximized")
-    opt.add_argument("--disable-extensions")
-    opt.add_experimental_option("prefs", { \
-        "profile.default_content_setting_values.media_stream_mic": 1,
-        "profile.default_content_setting_values.media_stream_camera": 1,
-        "profile.default_content_setting_values.notifications": 1
-    })
-    driver = webdriver.Chrome(options=opt)
+# def givePermissions():
+#     time.sleep(3)
+#     opt = Options()
+#     opt.add_argument("--disable-infobars")
+#     opt.add_argument("start-maximized")
+#     opt.add_argument("--disable-extensions")
+#     opt.add_experimental_option("prefs", { \
+#         "profile.default_content_setting_values.media_stream_mic": 1,
+#         "profile.default_content_setting_values.media_stream_camera": 1,
+#         "profile.default_content_setting_values.notifications": 1
+#     })
+#     driver = webdriver.Chrome(options=opt)
 
 t = currentTime()
 d = currentDay()
@@ -132,96 +182,37 @@ print(d)
 #         print("waiting...")
 
 if(d == "Monday"):
-    waituntilThis(t,951)
-    enterClass(3)
-    waituntilThis(t,1130)
-    goHome()
-    waituntilThis(t,1502)
-    enterClass(8)
-    waituntilThis(t,1550)
-    goHome()
-    waituntilThis(t,1602)
-    enterClass(7)
-    waituntilThis(t,1650)
-    goHome()
-    waituntilThis(t,1702)
-    enterClass(6)
-    waituntilThis(t,1750)
-    goHome()
+    waituntilThis(t,951,1130,3)
+    waituntilThis(t,1500,1550,8)
+    waituntilThis(t,1600,1650,7)
+    waituntilThis(t,1700,1750,6)
+    print("End of the Day brother!!")
 
 if(d == "Tuesday"):
-    waituntilThis(t,1140)
-    enterClass(9)
-    waituntilThis(t,1320)
-    goHome()
-    waituntilThis(t,1400)
-    enterClass(6)
-    waituntilThis(t,1450)
-    goHome()
-    waituntilThis(t,1500)
-    enterClass(1)
-    waituntilThis(t,1550)
-    goHome()
-    waituntilThis(t,1660)
-    enterClass(4)
-    waituntilThis(t,1650)
-    goHome()
-    waituntilThis(t,1660)
-    enterClass(5)
-    waituntilThis(t,1650)
-    goHome()
+    waituntilThis(t,1140,1320,9)
+    waituntilThis(t,1400,1450,6)
+    waituntilThis(t,1500,1550,1)
+    waituntilThis(t,1600,1650,4)
+    waituntilThis(t,1700,1750,5)
+    print("End of the Day brother!!")
 
 
 if(d == "Wednesday"):
-    waituntilThis(t,951)
-    enterClass(9)
-    waituntilThis(t,1130)
-    goHome()
-    waituntilThis(t,1400)
-    enterClass(5)
-    waituntilThis(t,1450)
-    goHome()
-    waituntilThis(t,1600)
-    enterClass(8)
-    waituntilThis(t,1650)
-    goHome()
-    waituntilThis(t,1700)
-    enterClass(7)
-    waituntilThis(t,1750)
-    goHome()
+    waituntilThis(t,1700,1750,7)
+    waituntilThis(t,1600,1650,8)
+    waituntilThis(t,1400,1450,5)
+    waituntilThis(t,951,1130,9)
+    print("End of the Day brother!!")
 
 if(d == "Thursday"):
-    waituntilThis(t,1140)
-    enterClass(2)
-    waituntilThis(t,1310)
-    goHome()
-    waituntilThis(t,1140)
-    enterClass(2)
-    waituntilThis(t,1310)
-    goHome()
-    waituntilThis(t,1400)
-    enterClass(7)
-    waituntilThis(t,1450)
-    goHome()
-    waituntilThis(t,1500)
-    enterClass(6)
-    waituntilThis(t,1550)
-    goHome()
-    waituntilThis(t,1600)
-    enterClass(1)
-    waituntilThis(t,1650)
-    goHome()
+    waituntilThis(t,1600,1650,1)
+    waituntilThis(t,1500,1550,6)
+    waituntilThis(t,1400,1450,7)
+    waituntilThis(t,1140,1310,2)
+    print("End of the Day brother!!")
 
 if(d == "Friday"):
-    waituntilThis(t,1200)
-    enterClass(10)
-    waituntilThis(t,1250)
-    goHome()
-    waituntilThis(t,1400)
-    enterClass(4)
-    waituntilThis(t,1450)
-    goHome()
-    waituntilThis(t,1500)
-    enterClass(5)
-    waituntilThis(t,1550)
-    goHome()
+    waituntilThis(t,1500,1550,5)
+    waituntilThis(t,1400,1450,4)
+    waituntilThis(t,1200,1250,10)
+    print("End of the Day brother!!")
