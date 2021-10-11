@@ -1,4 +1,4 @@
-from ctypes import pythonapi
+from ctypes import pythonapi, set_last_error
 import datetime
 from functools import cache
 import os
@@ -67,10 +67,13 @@ time.sleep(3)
 teamBtn = driver.find_element_by_id("app-bar-2a84919f-59d8-4441-a975-2a8c2643b741")
 
 
-def enterClass(index):
+def enterClass(day,index):
     className[index].click()
     time.sleep(3)
     print("Entered the class")
+
+    changeChannel(day,index)
+    time.sleep(3)
     join_btn = listenForJoinBtn()
     time.sleep(3)
     join_btn.click()
@@ -119,10 +122,10 @@ def wait_until_found(sel, timeout, driver):
 
 
 
-def waituntilThis(curr_t, class_time, end_time, index):
+def waituntilThis(curr_t, class_time, end_time, index, day):
     curr_t = currentTime()
     if(curr_t > class_time and curr_t < end_time):
-        enterClass(index)
+        enterClass(day,index)
     if(curr_t > end_time):
         goHome()
     while(curr_t < class_time):
@@ -132,6 +135,25 @@ def waituntilThis(curr_t, class_time, end_time, index):
         print("Time: ",curr_t)
 
 
+
+def changeChannel(day,index):
+    if(day == "Wednesday" and index == 5):
+        time.sleep(3)
+        labChannel = driver.find_element_by_id("channel-19:1IaV-1OEkQRheFliEQ8oaB3Sf6KetAzX5LLDJ2PIvSY1@thread.tacv2")
+        labChannel.click()
+
+    if(day == "Monday" and index == 7):
+        time.sleep(3)
+        monChannel = driver.find_element_by_css_selector("a[title = 'Monday']")
+        monChannel.click()
+    if(day == "Wednesday" and index == 7):
+        time.sleep(3)
+        monChannel = driver.find_element_by_css_selector("a[title = 'Wednesday']")
+        monChannel.click()
+    if(day == "Thursday" and index == 7):
+        time.sleep(3)
+        monChannel = driver.find_element_by_css_selector("a[title = 'Thursday']")
+        monChannel.click()
 
 
 def goHome():
@@ -182,37 +204,37 @@ print(d)
 #         print("waiting...")
 
 if(d == "Monday"):
-    waituntilThis(t,951,1130,3)
-    waituntilThis(t,1500,1550,8)
-    waituntilThis(t,1600,1650,7)
-    waituntilThis(t,1700,1750,6)
+    waituntilThis(t,951,1130,3,d)
+    waituntilThis(t,1500,1550,8,d)
+    waituntilThis(t,1600,1650,7,d)
+    waituntilThis(t,1700,1750,6,d)
     print("End of the Day brother!!")
 
 if(d == "Tuesday"):
-    waituntilThis(t,1140,1320,9)
-    waituntilThis(t,1400,1450,6)
-    waituntilThis(t,1500,1550,1)
-    waituntilThis(t,1600,1650,4)
-    waituntilThis(t,1700,1750,5)
+    waituntilThis(t,1140,1320,9,d)
+    waituntilThis(t,1400,1450,6,d)
+    waituntilThis(t,1500,1550,1,d)
+    waituntilThis(t,1600,1650,4,d)
+    waituntilThis(t,1700,1750,5,d)
     print("End of the Day brother!!")
 
 
 if(d == "Wednesday"):
-    waituntilThis(t,1700,1750,7)
-    waituntilThis(t,1600,1650,8)
-    waituntilThis(t,1400,1450,5)
-    waituntilThis(t,951,1130,9)
+    waituntilThis(t,1700,1750,7,d)
+    waituntilThis(t,1600,1650,8,d)
+    waituntilThis(t,1400,1450,5,d)
+    waituntilThis(t,951,1130,9,d)
     print("End of the Day brother!!")
 
 if(d == "Thursday"):
-    waituntilThis(t,1600,1650,1)
-    waituntilThis(t,1500,1550,6)
-    waituntilThis(t,1400,1450,7)
-    waituntilThis(t,1140,1310,2)
+    waituntilThis(t,1600,1650,1,d)
+    waituntilThis(t,1500,1550,6,d)
+    waituntilThis(t,1400,1450,7,d)
+    waituntilThis(t,1140,1310,2,d)
     print("End of the Day brother!!")
 
 if(d == "Friday"):
-    waituntilThis(t,1500,1550,5)
-    waituntilThis(t,1400,1450,4)
-    waituntilThis(t,1200,1250,10)
+    waituntilThis(t,1500,1550,5,d)
+    waituntilThis(t,1400,1450,4,d)
+    waituntilThis(t,1200,1250,10,d)
     print("End of the Day brother!!")
